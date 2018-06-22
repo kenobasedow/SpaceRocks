@@ -36,7 +36,7 @@ open class AnimatedActor : BaseActor() {
 
         val tex = activeAnim?.getKeyFrame(0f)?.texture
         width = tex?.width?.toFloat() ?: 0f
-        height = tex?.height?.toFloat()?: 0f
+        height = tex?.height?.toFloat() ?: 0f
     }
 
     override fun act(delta: Float) {
@@ -47,5 +47,20 @@ open class AnimatedActor : BaseActor() {
     override fun draw(batch: Batch?, parentAlpha: Float) {
         region.setRegion(activeAnim?.getKeyFrame(elapsedTime))
         super.draw(batch, parentAlpha)
+    }
+
+    fun copy(original: AnimatedActor) {
+        super.copy(original)
+        elapsedTime = 0f
+        animationStorage = original.animationStorage
+        val name = original.activeName
+        if (name != null)
+            setActiveAnimation(name)
+    }
+
+    override fun clone(): AnimatedActor {
+        val newbie = AnimatedActor()
+        newbie.copy(this)
+        return newbie
     }
 }

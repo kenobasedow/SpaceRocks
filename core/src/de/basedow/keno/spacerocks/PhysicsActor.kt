@@ -17,7 +17,7 @@ class PhysicsActor : AnimatedActor() {
         set(value) { velocity.setLength(value) }
 
     val motionAngle: Float
-        get() = MathUtils.atan2(velocity.x, velocity.y) * MathUtils.radiansToDegrees
+        get() = MathUtils.atan2(velocity.y, velocity.x) * MathUtils.radiansToDegrees
 
     fun setVelocityXY(vx: Float, vy: Float) { velocity.set(vx, vy) }
     fun addVelocityXY(vx: Float, vy: Float) { velocity.add(vx, vy) }
@@ -59,5 +59,20 @@ class PhysicsActor : AnimatedActor() {
 
         if (autoAngle && speed > 0.1f)
             rotation = motionAngle
+    }
+
+    fun copy(original: PhysicsActor) {
+        super.copy(original)
+        velocity.set(original.velocity)
+        acceleration.set(original.acceleration)
+        maxSpeed = original.maxSpeed
+        deceleration = original.deceleration
+        autoAngle = original.autoAngle
+    }
+
+    override fun clone(): PhysicsActor {
+        val newbie = PhysicsActor()
+        newbie.copy(this)
+        return newbie
     }
 }

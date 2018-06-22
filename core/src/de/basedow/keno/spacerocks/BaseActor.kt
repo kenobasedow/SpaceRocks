@@ -60,7 +60,8 @@ open class BaseActor : Group() {
     }
 
     fun copy(original: BaseActor) {
-        region = TextureRegion(original.region)
+        if (original.region.texture != null)
+            region = TextureRegion(original.region)
         if (original.boundingPolygon.vertices.size > 0)
             boundingPolygon = Polygon(original.boundingPolygon.vertices)
         boundingPolygon.setOrigin(original.originX, original.originY)
@@ -73,7 +74,7 @@ open class BaseActor : Group() {
         isVisible = original.isVisible
     }
 
-    fun clone(): BaseActor {
+    open fun clone(): BaseActor {
         val newbie = BaseActor()
         newbie.copy(this)
         return newbie
@@ -92,5 +93,10 @@ open class BaseActor : Group() {
 
     fun setOriginCenter() {
         setOrigin(width / 2f, height / 2f)
+    }
+
+    fun moveToOrigin(target: BaseActor) {
+        x = target.x + target.originX - originX
+        y = target.y + target.originY - originY
     }
 }
