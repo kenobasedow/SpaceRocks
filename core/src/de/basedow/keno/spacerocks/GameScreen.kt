@@ -3,6 +3,7 @@ package de.basedow.keno.spacerocks
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 
@@ -11,6 +12,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
     private val spaceship = PhysicsActor()
     private val rocketfire = BaseActor()
     private val baseLaser = PhysicsActor()
+    private val baseExplosion = AnimatedActor()
 
     private val laserList = mutableListOf<PhysicsActor>()
     private val rockList = mutableListOf<PhysicsActor>()
@@ -66,6 +68,11 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
             mainStage.addActor(rock)
             rockList.add(rock)
         }
+
+        baseExplosion.storeAnimation("default",
+                GameUtils.parseSpriteSheet("explosion.png", 6, 6,
+                        0.03f, Animation.PlayMode.NORMAL))
+        baseExplosion.setOriginCenter()
     }
 
     override fun update(delta: Float) {
@@ -84,6 +91,16 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         val itLaser = laserList.iterator()
         while (itLaser.hasNext()) {
             val laser = itLaser.next()
+            for (rock in rockList) {
+                if (laser.overlaps(rock, false)) {
+                    laser.isVisible = false
+                    rock.isVisible = false
+                    val explosion = baseExplosion.clone()
+                    explosion.moveToOrigin(rock)
+                    mainStage.addActor(explosion)
+                    explosion.addAction(Actions.sequence(Actions.delay(1.08f), Actions.removeActor()))
+                }
+            }
             wraparound(laser)
             if (!laser.isVisible) {
                 itLaser.remove()
@@ -95,6 +112,10 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         while (itRock.hasNext()) {
             val rock = itRock.next()
             wraparound(rock)
+            if (!rock.isVisible) {
+                itRock.remove()
+                rock.remove()
+            }
         }
     }
 

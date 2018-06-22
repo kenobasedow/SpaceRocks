@@ -34,9 +34,9 @@ open class AnimatedActor : BaseActor() {
         activeAnim = animationStorage.get(name)
         elapsedTime = 0f
 
-        val tex = activeAnim?.getKeyFrame(0f)?.texture
-        width = tex?.width?.toFloat() ?: 0f
-        height = tex?.height?.toFloat() ?: 0f
+        val region = activeAnim?.getKeyFrame(0f)
+        width = region?.regionWidth?.toFloat() ?: 0f
+        height = region?.regionHeight?.toFloat() ?: 0f
     }
 
     override fun act(delta: Float) {
