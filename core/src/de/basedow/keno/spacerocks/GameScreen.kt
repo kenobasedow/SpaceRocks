@@ -13,6 +13,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
     private val rocketfire = BaseActor()
     private val baseLaser = PhysicsActor()
     private val baseExplosion = AnimatedActor()
+    private var spaceshipExplosion: AnimatedActor
 
     private val laserList = mutableListOf<PhysicsActor>()
     private val rockList = mutableListOf<PhysicsActor>()
@@ -73,6 +74,8 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
                 GameUtils.parseSpriteSheet("explosion.png", 6, 6,
                         0.03f, Animation.PlayMode.NORMAL))
         baseExplosion.setOriginCenter()
+
+        spaceshipExplosion = baseExplosion.clone()
     }
 
     override fun update(delta: Float) {
@@ -111,11 +114,21 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         val itRock = rockList.iterator()
         while (itRock.hasNext()) {
             val rock = itRock.next()
+            if (rock.overlaps(spaceship, false)) {
+                spaceshipExplosion.moveToOrigin(spaceship)
+                mainStage.addActor(spaceshipExplosion)
+                spaceshipExplosion.addAction(Actions.sequence(Actions.delay(1.08f), Actions.visible(false)))
+                spaceship.remove()
+            }
             wraparound(rock)
             if (!rock.isVisible) {
                 itRock.remove()
                 rock.remove()
             }
+        }
+
+        if (!spaceshipExplosion.isVisible) {
+            isPaused = true
         }
     }
 
