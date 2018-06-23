@@ -35,7 +35,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         val shipTex = Texture("spaceship.png")
         shipTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
         spaceship.storeAnimation("default", shipTex)
-        spaceship.setPosition(400f, 300f)
+        spaceship.setPosition(mapWidth / 2f, mapHeight / 2f)
         spaceship.setOriginCenter()
         spaceship.maxSpeed = 200f
         spaceship.deceleration = 20f
@@ -63,8 +63,14 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
             val rockTex = Texture("rock${n % 4}.png")
             rockTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
             rock.storeAnimation("default", rockTex)
-            rock.x = 800f * MathUtils.random()
-            rock.y = 600f * MathUtils.random()
+            if (MathUtils.randomBoolean())
+                rock.x = MathUtils.random(0f, mapWidth / 4f)
+            else
+                rock.x = MathUtils.random(mapWidth * 3f / 4f, mapWidth)
+            if (MathUtils.randomBoolean())
+                rock.y = MathUtils.random(0f, mapHeight / 4f)
+            else
+                rock.y = MathUtils.random(mapHeight * 3f / 4f, mapHeight)
             rock.setOriginCenter()
             rock.setEllipseBoundary()
             rock.autoAngle = false
@@ -83,7 +89,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         spaceshipExplosion = baseExplosion.clone()
 
         laserSound = Gdx.audio.newSound(Gdx.files.internal("laser.wav"))
-        
+
         music = Gdx.audio.newMusic(Gdx.files.internal("Disco con Tutti.mp3"))
         music.isLooping = true
         music.play()
