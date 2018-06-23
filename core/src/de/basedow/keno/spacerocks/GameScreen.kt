@@ -2,7 +2,6 @@ package de.basedow.keno.spacerocks
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
@@ -10,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 
-class GameScreen(game: BaseGame) : BaseScreen(game) {
+class GameScreen(game: BaseGame, val level: Int) : BaseScreen(game) {
 
     private val spaceship = PhysicsActor()
     private val rocketfire = BaseActor()
@@ -25,7 +24,6 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
     private val rockList = mutableListOf<PhysicsActor>()
 
     private val laserSound: Sound
-    private val music: Music
 
     private val mapWidth = 800f
     private val mapHeight = 600f
@@ -61,8 +59,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         baseLaser.setOriginCenter()
         baseLaser.autoAngle = true
 
-        val numRocks = 6
-        for (n in 1..numRocks) {
+        for (n in 1..level) {
             val rock = PhysicsActor()
             val rockTex = Texture("rock${n % 4}.png")
             rockTex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
@@ -93,10 +90,6 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         spaceshipExplosion = baseExplosion.clone()
 
         laserSound = Gdx.audio.newSound(Gdx.files.internal("laser.wav"))
-
-        music = Gdx.audio.newMusic(Gdx.files.internal("Disco con Tutti.mp3"))
-        music.isLooping = true
-        music.play()
 
         gameOverLabel = Label("Game Over", game.skin, "uiLabelStyle")
         gameOverLabel.isVisible = false
@@ -154,16 +147,24 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
             }
         }
 
+        if (rockList.isEmpty()) {
+            game.screen = LevelScreen(game, level + 1)
+        }
+
         if (!spaceshipExplosion.isVisible) {
             isPaused = true
-            music.stop()
         }
+    }
+
+    override fun dispose() {
+        super.dispose()
+        laserSound.dispose()
     }
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Input.Keys.SPACE) {
             if (gameOver) {
-                game.screen = GameScreen(game)
+                game.screen = LevelScreen(game)
                 return false
             }
             val laser = baseLaser.clone()
@@ -183,7 +184,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         if (gameOver)
-            game.screen = GameScreen(game)
+            game.screen = LevelScreen(game)
         return false
     }
 
