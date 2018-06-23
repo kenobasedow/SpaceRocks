@@ -2,6 +2,8 @@ package de.basedow.keno.spacerocks
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.audio.Music
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.math.MathUtils
@@ -17,6 +19,9 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
 
     private val laserList = mutableListOf<PhysicsActor>()
     private val rockList = mutableListOf<PhysicsActor>()
+
+    private val laserSound: Sound
+    private val music: Music
 
     private val mapWidth = 800f
     private val mapHeight = 600f
@@ -76,6 +81,12 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         baseExplosion.setOriginCenter()
 
         spaceshipExplosion = baseExplosion.clone()
+
+        laserSound = Gdx.audio.newSound(Gdx.files.internal("laser.wav"))
+        
+        music = Gdx.audio.newMusic(Gdx.files.internal("Disco con Tutti.mp3"))
+        music.isLooping = true
+        music.play()
     }
 
     override fun update(delta: Float) {
@@ -129,6 +140,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
 
         if (!spaceshipExplosion.isVisible) {
             isPaused = true
+            music.stop()
         }
     }
 
@@ -144,6 +156,7 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
                     Actions.fadeOut(0.5f),
                     Actions.visible(false)
             ))
+            laserSound.play()
         }
         return false
     }
