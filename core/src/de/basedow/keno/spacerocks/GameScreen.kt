@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 
 class GameScreen(game: BaseGame) : BaseScreen(game) {
 
@@ -15,7 +16,10 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
     private val rocketfire = BaseActor()
     private val baseLaser = PhysicsActor()
     private val baseExplosion = AnimatedActor()
-    private var spaceshipExplosion: AnimatedActor
+    private val spaceshipExplosion: AnimatedActor
+
+    private var gameOver = false
+    private val gameOverLabel: Label
 
     private val laserList = mutableListOf<PhysicsActor>()
     private val rockList = mutableListOf<PhysicsActor>()
@@ -93,6 +97,10 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         music = Gdx.audio.newMusic(Gdx.files.internal("Disco con Tutti.mp3"))
         music.isLooping = true
         music.play()
+
+        gameOverLabel = Label("Game Over", game.skin, "uiLabelStyle")
+        gameOverLabel.isVisible = false
+        uiTable.add(gameOverLabel)
     }
 
     override fun update(delta: Float) {
@@ -132,6 +140,8 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
         while (itRock.hasNext()) {
             val rock = itRock.next()
             if (rock.overlaps(spaceship, false)) {
+                gameOver = true
+                gameOverLabel.isVisible = true
                 spaceshipExplosion.moveToOrigin(spaceship)
                 mainStage.addActor(spaceshipExplosion)
                 spaceshipExplosion.addAction(Actions.sequence(Actions.delay(1.08f), Actions.visible(false)))
@@ -152,6 +162,10 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Input.Keys.SPACE) {
+            if (gameOver) {
+                game.screen = GameScreen(game)
+                return false
+            }
             val laser = baseLaser.clone()
             laser.moveToOrigin(spaceship)
             laser.setVelocityAS(spaceship.rotation, 400f)
@@ -164,6 +178,12 @@ class GameScreen(game: BaseGame) : BaseScreen(game) {
             ))
             laserSound.play()
         }
+        return false
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        if (gameOver)
+            game.screen = GameScreen(game)
         return false
     }
 
